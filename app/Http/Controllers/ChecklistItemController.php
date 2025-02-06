@@ -5,20 +5,21 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Checklist;
 use App\Models\ChecklistItem;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ChecklistItemController extends Controller
 {
     public function store(Request $request, $checklistId)
-    {
-        $userId = request()->user_id;
-
-        $checklist = DB::table('checklists')->where('user_id', $userId)->where('id', $checklistId)->first();
-
+    {    
+        $checklist = DB::table('checklists')
+            ->where('id', $checklistId)
+            ->first();
+    
         if (!$checklist) {
             return response()->json(['message' => 'Checklist not found'], 404);
         }
-
+    
         $request->validate(['content' => 'required|string']);
 
         $itemId = DB::table('checklist_items')->insertGetId([
@@ -27,9 +28,9 @@ class ChecklistItemController extends Controller
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-
+    
         $item = DB::table('checklist_items')->where('id', $itemId)->first();
-
+    
         return response()->json($item, 201);
     }
 

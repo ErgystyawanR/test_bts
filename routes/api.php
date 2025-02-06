@@ -17,22 +17,15 @@ use App\Http\Controllers\ChecklistItemController;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
+Route::post('register', [AuthController::class, 'register']);
+Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout']);
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->post('/checklists', [ChecklistController::class, 'store']);
+Route::middleware('auth:sanctum')->delete('/checklists/{id}', [ChecklistController::class, 'destroy']);
 
-Route::middleware('auth')->post('/checklists', [ChecklistController::class, 'store']);
-Route::middleware('auth')->delete('/checklists/{id}', [ChecklistController::class, 'destroy']);
-Route::middleware('auth')->delete('/checklists/{checklist}/items/{item}', [ChecklistItemController::class, 'destroy']);
-
-Route::get('/checklists', [ChecklistController::class, 'index']);       
-Route::post('/checklists', [ChecklistController::class, 'store']);
+Route::get('/checklists', [ChecklistController::class, 'index']);
 Route::get('/checklists/{id}', [ChecklistController::class, 'show']);
-
 Route::post('/checklists/{checklist}/items', [ChecklistItemController::class, 'store']);
 Route::get('/checklists/{checklist}/items/{item}', [ChecklistItemController::class, 'show']);
 Route::put('/checklists/{checklist}/items/{item}', [ChecklistItemController::class, 'update']);

@@ -12,9 +12,7 @@ class ChecklistController extends Controller
 {
     public function index()
     {
-        $userId = request()->user_id;
-
-        $checklists = DB::table('checklists')->where('user_id', $userId)->get();
+        $checklists = DB::table('checklists')->get();
 
         return response()->json($checklists);
     }
@@ -22,37 +20,30 @@ class ChecklistController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required',
             'title' => 'required',
         ]);
 
-        $user = DB::table('users')->where('id', $request->user_id)->first();
-
-        if (!$user) {
-            return response()->json(['error' => 'User not found'], 404);
-        }
+        $user = Auth::user();
 
         $checklist = DB::table('checklists')->insertGetId([
-            'user_id' => $request->user_id,
+            'user_id' => $user->id, 
             'title' => $request->title,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return response()->json(['id' => $checklist, 'user_id' => $request->user_id, 'title' => $request->title], 201);
+        return response()->json(['id' => $checklist, 'user_id' => $user->id, 'title' => $request->title], 201);
     }
 
     public function show($id)
     {
-        $userId = request()->user_id; 
-
-        $checklist = DB::table('checklists')->where('user_id', $userId)->where('id', $id)->first(); 
+        $checklist = DB::table('checklists')->where('id', $id)->first();
 
         if (!$checklist) {
             return response()->json(['message' => 'Checklist not found'], 404);
         }
 
-        $items = DB::table('items')->where('checklist_id', $checklist->id)->get();
+        $items = DB::table('checklist_items')->where('checklist_id', $checklist->id)->get();
 
         $checklistData = [
             'id' => $checklist->id,
@@ -68,9 +59,7 @@ class ChecklistController extends Controller
 
     public function destroy($id)
     {
-        $userId = request()->user_id; 
-
-        $checklist = DB::table('checklists')->where('user_id', $userId)->where('id', $id)->first();
+        $checklist = DB::table('checklists')->where('id', $id)->first();
 
         if (!$checklist) {
             return response()->json(['message' => 'Checklist not found'], 404);
